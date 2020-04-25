@@ -1,0 +1,10 @@
+# c
+*.o
+tp
+.deps
+
+# tests
+*.out
+
+# python
+__pycache__
