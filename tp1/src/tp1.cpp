@@ -89,32 +89,34 @@ namespace CMM_method{
 
 		string line;
 		ifstream myfile(filename);
-		if (myfile.is_open()){
-			int teams,games;
-			myfile >> teams >> games;
-			system = System(teams);
-
-			for(int i = 0;i < teams;i++)
-				system.A.cells[i][i] += 2.0f;
-
-			for(int i = 0;i < games;i++){
-				int date,teamI,goalsI,teamJ,goalsJ;
-				myfile >> date >> teamI >> goalsI >> teamJ >> goalsJ;
-				teamI-=1;
-				teamJ-=1;
-				system.A.cells[teamI][teamI] += 1.0f;
-				system.A.cells[teamJ][teamJ] += 1.0f;
-				system.A.cells[teamI][teamJ] -= 1.0f;
-				system.A.cells[teamJ][teamI] -= 1.0f;
-				system.b[teamI] += (goalsI > goalsJ)*1.0f - (goalsI < goalsJ)*1.0f;
-				system.b[teamJ] += (goalsJ > goalsI)*1.0f - (goalsJ < goalsI)*1.0f;
-			}
-
-			for(int i = 0;i < teams;i++)
-				system.b[i] = 1.0f + system.b[i]/2.0f;
-
-			myfile.close();
+		if (!myfile.is_open()){
+			std::cout << "Unable to open file: " << filename << std::endl;
 		}
+
+		int teams, games;
+		myfile >> teams >> games;
+		system = System(teams);
+
+		for(int i = 0;i < teams;i++)
+			system.A.cells[i][i] += 2.0f;
+
+		for(int i = 0;i < games;i++){
+			int date,teamI,goalsI,teamJ,goalsJ;
+			myfile >> date >> teamI >> goalsI >> teamJ >> goalsJ;
+			teamI-=1;
+			teamJ-=1;
+			system.A.cells[teamI][teamI] += 1.0f;
+			system.A.cells[teamJ][teamJ] += 1.0f;
+			system.A.cells[teamI][teamJ] -= 1.0f;
+			system.A.cells[teamJ][teamI] -= 1.0f;
+			system.b[teamI] += (goalsI > goalsJ)*1.0f - (goalsI < goalsJ)*1.0f;
+			system.b[teamJ] += (goalsJ > goalsI)*1.0f - (goalsJ < goalsI)*1.0f;
+		}
+
+		for(int i = 0;i < teams;i++)
+			system.b[i] = 1.0f + system.b[i]/2.0f;
+
+		myfile.close();
 		return system;
 	}
 
