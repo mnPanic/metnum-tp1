@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <fstream>
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -85,9 +86,18 @@ namespace CMM_method{
 	}
 
 	System generate_system(string filename){
+		// generate the system Cr = b
+		// where
+		//
+		//	C_ij = 	-n_ij 		if i != j
+		//			2 + n_i		if i = j
+		//
+		//	b_i = 1 + (w_i + l_i)/2
+		//
+		//	i,j teams from (1, ..., N) 
+
 		System system;
 
-		string line;
 		ifstream myfile(filename);
 		if (!myfile.is_open()){
 			std::cout << "Unable to open file: " << filename << std::endl;
@@ -97,24 +107,37 @@ namespace CMM_method{
 		myfile >> teams >> games;
 		system = System(teams);
 
-		for(int i = 0;i < teams;i++)
-			system.A.cells[i][i] += 2.0f;
+		// Ya que los equipos pueden tener numeros de identificacion
+		// arbitrarios, es necesario hacer un mapeo entre eso y
+		// en indice resultante en la matriz.
+		map<int, int> team2idx;
 
-		for(int i = 0;i < games;i++){
-			int date,teamI,goalsI,teamJ,goalsJ;
-			myfile >> date >> teamI >> goalsI >> teamJ >> goalsJ;
-			teamI-=1;
-			teamJ-=1;
-			system.A.cells[teamI][teamI] += 1.0f;
-			system.A.cells[teamJ][teamJ] += 1.0f;
-			system.A.cells[teamI][teamJ] -= 1.0f;
-			system.A.cells[teamJ][teamI] -= 1.0f;
-			system.b[teamI] += (goalsI > goalsJ)*1.0f - (goalsI < goalsJ)*1.0f;
-			system.b[teamJ] += (goalsJ > goalsI)*1.0f - (goalsJ < goalsI)*1.0f;
+		for(int i = 0;i < teams;i++) {
+			system.A.cells[i][i] += 2.0;
 		}
 
-		for(int i = 0;i < teams;i++)
-			system.b[i] = 1.0f + system.b[i]/2.0f;
+		for(int i = 0;i < games;i++){
+			int date, teamIName, goalsI, teamJName, goalsJ;
+			myfile >> date >> teamIName >> goalsI >> teamJName >> goalsJ;
+
+			// Si no tienen un mapeo, entonces sera por su numero de aparicion
+			if(!team2idx.count(teamIName)) {team2idx[teamIName] = team2idx.size(); }
+			if(!team2idx.count(teamJName)) {team2idx[teamJName] = team2idx.size(); }
+
+			int teamI = team2idx[teamIName];
+			int teamJ = team2idx[teamJName];
+
+			system.A.cells[teamI][teamI] += 1.0;
+			system.A.cells[teamJ][teamJ] += 1.0;
+			system.A.cells[teamI][teamJ] -= 1.0;
+			system.A.cells[teamJ][teamI] -= 1.0;
+			system.b[teamI] += (goalsI > goalsJ)*1.0 - (goalsI < goalsJ)*1.0;
+			system.b[teamJ] += (goalsJ > goalsI)*1.0 - (goalsJ < goalsI)*1.0;
+		}
+
+		for(int i = 0;i < teams;i++) {
+			system.b[i] = 1.0 + system.b[i]/2.0;
+		}
 
 		myfile.close();
 		return system;
