@@ -15,6 +15,64 @@ using namespace std;
 
 typedef vector<double> Ratings;
 
+struct entry {
+    int player0;
+    int player1;
+    int win;
+    int date;
+};
+
+struct info{
+    int teams;
+    std::vector<entry> entries;
+};
+
+void parseData(std::string file, info& info) {
+    std::ifstream st (file);
+    if (!st.is_open()) {
+        printf("Error opening file\n");
+        exit(EXIT_FAILURE);
+    }
+    int t, n;
+    st >> t >> n;
+
+    info.teams = t;
+    int p0,p1,g0,g1,d,w;
+
+    for (int i = 0; i < n; i++) {
+        st >> d >> p0 >> g0 >> p1 >> g1;
+        if (g0 > g1) w = p0-1;
+        else w = p1-1;
+        entry e = entry{p0-1, p1-1, w, d};
+        info.entries.push_back(e);
+    }
+    st.close();
+}
+
+void wp (std::string file, std::vector<double>& results) {
+    // info partidos {
+    //     0, std::vector<entry>()
+    // };
+    info partidos{};
+    parseData(file, partidos);
+    
+    for (int i = 0; i < partidos.teams; ++i) {
+        int count = 0;
+        int wins = 0;
+
+        for (int j = 0 ; j < partidos.entries.size(); ++j) {
+            if (partidos.entries[j].player0 == i ||
+                partidos.entries[j].player1 == i) {
+                    count++;
+                    if (partidos.entries[j].win == i) {
+                        wins++;
+                    }
+                }
+        }
+        results.push_back((double)wins/(double)count);
+    }
+}
+
 namespace CMM_method{
 	
 	class Matrix{
@@ -85,39 +143,40 @@ namespace CMM_method{
 	}
 
 	System generate_system(string filename){
-		System system;
+		//System system;
+        info partidos {};
 
-		string line;
-		ifstream myfile(filename);
-		if (myfile.is_open()){
-			int teams,games;
-			myfile >> teams >> games;
-			system = System(teams);
+        parseData(filename, partidos);
+        System system(partidos.teams);
 
-			for(int i = 0;i < teams;i++)
-				system.A.cells[i][i] += 2.0f;
+        for (int i = 0; i < partidos.teams; ++i) {
+            system.A.cells[i][i] += 2.0;
+        }
 
-			for(int i = 0;i < games;i++){
-				int date,teamI,goalsI,teamJ,goalsJ;
-				myfile >> date >> teamI >> goalsI >> teamJ >> goalsJ;
-				teamI-=1;
-				teamJ-=1;
-				system.A.cells[teamI][teamI] += 1.0f;
-				system.A.cells[teamJ][teamJ] += 1.0f;
-				system.A.cells[teamI][teamJ] -= 1.0f;
-				system.A.cells[teamJ][teamI] -= 1.0f;
-				system.b[teamI] += (goalsI > goalsJ)*1.0f - (goalsI < goalsJ)*1.0f;
-				system.b[teamJ] += (goalsJ > goalsI)*1.0f - (goalsJ < goalsI)*1.0f;
-			}
+        for (int i = 0; i < partidos.entries.size(); ++i) {
+            int p0 = partidos.entries[i].player0;
+            int p1 = partidos.entries[i].player1;
 
-			for(int i = 0;i < teams;i++)
-				system.b[i] = 1.0f + system.b[i]/2.0f;
+            system.A.cells[p0][p0] += 1.0;
+            system.A.cells[p1][p1] += 1.0;
+            system.A.cells[p0][p1] -= 1.0;
+            system.A.cells[p1][p0] -= 1.0;
 
-			myfile.close();
-		}
-		return system;
-	}
+            if (partidos.entries[i].win == p0) {
+                system.b[p0] += 1.0;
+                system.b[p1] -= 1.0;
+            } else {
+                system.b[p1] += 1.0;
+                system.b[p0] -= 1.0;
+            }
+        }
 
+        for (int i = 0; i < partidos.teams; i++) {
+            system.b[i] = 1.0 + system.b[i] / 2.0;
+        }
+
+        return system;
+    }
 }
 
 void save_data(string filename,Ratings ratings){
@@ -134,6 +193,7 @@ int main(int argc, char const *argv[]){
 
 	if(argc != 4){
 		cout << "Argument count is wrong!" << endl;
+        exit(EXIT_FAILURE);
 	}
 	
 	string input_file = string(argv[1]);
@@ -150,7 +210,7 @@ int main(int argc, char const *argv[]){
 		}
 		break;
 		case WP:
-
+            wp(input_file, ratings);
 		break;
 		case OPTIONAL:
 		break;

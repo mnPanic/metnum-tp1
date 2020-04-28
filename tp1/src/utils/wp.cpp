@@ -11,14 +11,14 @@ struct entry {
 
 struct info{
     int teams;
-    std::vector<entry_t> entires;
+    std::vector<entry> entries;
 };
 
-void parseData(std::string file, info_t& info) {
+void parseData(std::string file, info& info) {
     std::ifstream st (file);
     if (!st.is_open()) {
         printf("Error opening file\n");
-        exit(CODE_FAILURE);
+        exit(EXIT_FAILURE);
     }
     int t, n;
     st >> t >> n;
@@ -43,20 +43,18 @@ void wp (std::string file, std::vector<double>& results) {
     for (int i = 0; i < partidos.teams; ++i) {
         int count = 0;
         int wins = 0;
-        for (int j = 0 ; j < partidos.entires.size(); ++j) {
-            if (partidos.entires[j].player0 == i ||
-                partidos.entires[j].player1 == i) {
+        for (int j = 0 ; j < partidos.entries.size(); ++j) {
+            if (partidos.entries[j].player0 == i ||
+                partidos.entries[j].player1 == i) {
                     count++;
-                    if (partidos.entires[j].win == i) wins++;
+                    if (partidos.entries[j].win == i) wins++;
                 }
         }
-        results[i] = (double)wins/(double)count;
+        results.push_back((double)wins/(double)count);
     }
 }
 
 
 int main() {
-        std::vector<double> res();
-        wp("tests/test1.in", res);
         return 0;
 }
