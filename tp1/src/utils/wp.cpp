@@ -28,7 +28,7 @@ void parseData(std::string file, info_t& info) {
             st >> d >> p0 >> g0 >> p1 >> g1;
             if (g0 > g1) w = p0;
             else w = p1;
-            entry_t e = entry_t{p0, p1, w, d};
+            entry_t e = entry_t{p0-1, p1-1, w, d};
             vec.push_back(e);
         }
         info.entires = vec;
