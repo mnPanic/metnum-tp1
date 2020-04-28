@@ -29,7 +29,7 @@ class Game:
         self.goals1 = g1
         self.goals2 = g2
     def __repr__(self):  
-        return "1 " + str(self.team1) + " " + str(int(self.goals1)) + " " + str(self.team2) + " " + str(int(self.goals2))
+        return f"1 {self.team1} {self.goals1} {self.team2} {self.goals2}"
 
     def __str__(self):
         return "1 " + str(self.team1) + " " + str(int(self.goals1)) + " " + str(self.team2) + " " + str(int(self.goals2))
