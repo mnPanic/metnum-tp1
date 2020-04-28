@@ -28,8 +28,8 @@ void parseData(std::string file, info_t& info) {
 
     for (int i = 0; i < n; i++) {
         st >> d >> p0 >> g0 >> p1 >> g1;
-        if (g0 > g1) w = p0;
-        else w = p1;
+        if (g0 > g1) w = p0-1;
+        else w = p1-1;
         entry e = entry{p0-1, p1-1, w, d};
         info.entries.push_back(e);
     }
