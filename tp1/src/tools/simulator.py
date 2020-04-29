@@ -1,4 +1,5 @@
 import random
+import argparse
 
 TEAMS = 5
 MAX_POWER = 1000
@@ -101,16 +102,75 @@ def SavePowers(filename,teams):
         for team in teams:
             print(team, file=f)
 
-def main():
-    teams = LinearPowers()
+def main(args):
+
+    if args.matches_output is None:
+        print("Error: No matches output file.")
+        return -1
+
+    if args.team_powers_output is None:
+        print("Error: No team powers output file.")
+        return -1
+
+    teams = []
+    
+
+    if args.powers == "linear":
+        teams = LinearPowers()
+    elif args.powers == "exponential": 
+        teams = ExponentialPowers()
+    
     print(teams)
-    games = RoundRobin(teams)
-    SaveMatches("matches_roundrobin.tsv",games)
-    SavePowers("powers_linear.out",teams)
-    teams2 = ExponentialPowers()
-    print(teams2)
-    games2 = Clusters(teams2)
-    SaveMatches("matches_clusters.tsv",games2)
-    SavePowers("powers_exp.out",teams2)
- 
-main()
+
+    games = []
+    
+    if args.matches == "roundrobin":
+        games = RoundRobin(teams)
+    elif args.matches == "clusters":
+        games = Clusters(teams)
+
+    SaveMatches(args.matches_output,games)
+    SavePowers(args.team_powers_output,teams)
+
+if __name__== "__main__":
+    description = 'Simulator'
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('--matches_output',
+                        type=str,
+                        help='Filename where matches output is saved.')
+    parser.add_argument('--team_powers_output',
+                        type=str,
+                        help='Filename where team powers output is saved.')
+    parser.add_argument('--powers',
+                        type=str,
+                        default="linear",
+                        choices=["linear","exponential"],
+                        help='Method used to define teams power.')
+    parser.add_argument('--matches',
+                        type=str,
+                        default="roundrobin",
+                        choices=["roundrobin","clusters"],
+                        help='Method used to define matches generation.')
+    parser.add_argument('--team_matches',
+                        type=int,
+                        default=GAMES_AGAINST_EACH,
+                        help="Amount of matches played by a team.")
+    parser.add_argument('--goals_per_game',
+                        type=int,
+                        default=GOALS_PER_GAME,
+                        help="Amount of goals produced in a match.")
+    parser.add_argument('--max_power',
+                        type=str,
+                        default=MAX_POWER,
+                        help='Max power for a team.')
+    parser.add_argument('--teams',
+                        type=int,
+                        default=TEAMS,
+                        help="Amount of teams for matches.")
+    parser.add_argument('--clusters',
+                        type=int,
+                        default=CLUSTERS,
+                        help="Amount of clusters used for teams matches distribution.")
+    args = parser.parse_args()
+
+    main(args)
