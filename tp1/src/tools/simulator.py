@@ -11,10 +11,10 @@ class Team:
         self.index = index
         self.power = power
     def __repr__(self):  
-        return "(t = " + str(self.index) + ", p = " + str(self.power) + ")" 
+        return f"{self.index} {self.power}"
 
     def __str__(self):
-        return "(t = " + str(self.index) + ", p = " + str(self.power) + ")"
+        return f"{self.index} {self.power}"
 
     def __eq__(self, other):
         if type(other) is type(self):
@@ -96,14 +96,21 @@ def SaveMatches(filename,games):
         for game in games:
             print(game, file=f)
 
+def SavePowers(filename,teams):
+    with open(filename, 'w') as f:
+        for team in teams:
+            print(team, file=f)
+
 def main():
     teams = LinearPowers()
     print(teams)
     games = RoundRobin(teams)
     SaveMatches("matches_roundrobin.tsv",games)
+    SavePowers("powers_linear.out",teams)
     teams2 = ExponentialPowers()
     print(teams2)
     games2 = Clusters(teams2)
     SaveMatches("matches_clusters.tsv",games2)
+    SavePowers("powers_exp.out",teams2)
  
 main()
