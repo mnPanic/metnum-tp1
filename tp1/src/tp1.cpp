@@ -50,9 +50,6 @@ void parseData(std::string file, info& info) {
 }
 
 void wp (std::string file, std::vector<double>& results) {
-    // info partidos {
-    //     0, std::vector<entry>()
-    // };
     info partidos{};
     parseData(file, partidos);
     
