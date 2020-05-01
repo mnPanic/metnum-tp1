@@ -1,11 +1,11 @@
 import random
 import argparse
 
-TEAMS = 5
-MAX_POWER = 1000
-GAMES_AGAINST_EACH = 5
+TEAMS = 10
+MAX_POWER = 100
+GAMES_AGAINST_EACH = 3
 GOALS_PER_GAME = 3
-CLUSTERS = 5
+CLUSTERS = 4
 
 class Team:
     def __init__(self,index,power):
@@ -112,6 +112,18 @@ def main(args):
         print("Error: No team powers output file.")
         return -1
 
+    global GAMES_AGAINST_EACH
+    global GOALS_PER_GAME
+    global MAX_POWER
+    global TEAMS
+    global CLUSTERS
+    
+    GAMES_AGAINST_EACH = args.team_matches
+    GOALS_PER_GAME = args.goals_per_game
+    MAX_POWER = args.max_power
+    TEAMS = args.teams
+    CLUSTERS = args.clusters
+    
     teams = []
     
 
