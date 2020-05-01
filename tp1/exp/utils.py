@@ -65,19 +65,22 @@ def read_ranking(path: str) -> pd.DataFrame:
     )
 
 def analyze_data(path: str) -> pd.DataFrame:
-    df = read_mn(path)    
+    df = read_mn(path)
     
-    teams = {} # {team : { "percent": percent played, "total": total played, "played": set of teams}}
-    
+    teams = {} # {team : { "percent": percent played, "total": total played, "wins": games won, "played": set of teams}}
+
     for i, row in df.iterrows():
         date, team1, score1, team2, score2 = row
-        if team1 not in teams: teams[team1] = {"total": 0, "opponents": set()}
-        if team2 not in teams: teams[team2] = {"total": 0, "opponents": set()}
+        if team1 not in teams: teams[team1] = {"total": 0, "wins": 0, "opponents": set()}
+        if team2 not in teams: teams[team2] = {"total": 0, "wins": 0, "opponents": set()}
+
 
         teams[team1]["total"] += 1
+        teams[team1]["wins"] += 1 if score1 > score2 else 0
         teams[team1]["opponents"].add(team2) # wont add if present
         
         teams[team2]["total"] += 1
+        teams[team2]["wins"] += 1 if score2 > score1 else 0
         teams[team2]["opponents"].add(team1) # wont add if present
     
     total_teams = len(teams)
@@ -87,13 +90,19 @@ def analyze_data(path: str) -> pd.DataFrame:
         if vals["total"] > max_games_played:
             max_games_played = vals["total"]
 
-    data = pd.DataFrame(columns=["team", "share", "total", "participation"])
+    data = pd.DataFrame(columns=["team", "share", "total", "wins", "participation"])
     for i, team in enumerate(teams.keys()):
         # calculate %
         teams[team]["percent"] = len(teams[team]["opponents"]) / (total_teams - 1)
         teams[team]["participation"] = teams[team]["total"] / max_games_played
-        
+
         # add to pandas dataframe
-        data.loc[i] = [team, teams[team]["percent"], teams[team]["total"], teams[team]["participation"]]
+        data.loc[i] = [
+            int(team), 
+            teams[team]["percent"], 
+            teams[team]["total"],
+            teams[team]["wins"],
+            teams[team]["participation"]
+        ]
     
     return data
