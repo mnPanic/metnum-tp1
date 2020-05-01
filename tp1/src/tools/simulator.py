@@ -92,8 +92,9 @@ def ExponentialPowers():
 
     return teams_powers
 
-def SaveMatches(filename,games):
+def SaveMatches(filename, games, team_amount):
     with open(filename, 'w') as f:
+        print(f"{team_amount} {len(games)}", file=f)
         for game in games:
             print(game, file=f)
 
@@ -103,6 +104,8 @@ def SavePowers(filename,teams):
             print(team, file=f)
 
 def main(args):
+    TEAM = 0
+    random.seed(587)
 
     if args.matches_output is None:
         print("Error: No matches output file.")
@@ -141,17 +144,19 @@ def main(args):
     elif args.matches == "clusters":
         games = Clusters(teams)
 
-    SaveMatches(args.matches_output,games)
+    SaveMatches(args.matches_output,games, len(teams))
     SavePowers(args.team_powers_output,teams)
 
 if __name__== "__main__":
     description = 'Simulator'
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--matches_output',
+                        default="../../data/sim.dat",
                         type=str,
                         help='Filename where matches output is saved.')
     parser.add_argument('--team_powers_output',
                         type=str,
+                        default="../../data/sim_powers.tsv",
                         help='Filename where team powers output is saved.')
     parser.add_argument('--powers',
                         type=str,

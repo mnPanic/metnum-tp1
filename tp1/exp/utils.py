@@ -16,8 +16,8 @@ OUT = ".out"
 BIN = "../src/tp"
 
 # Metodos
-TYPE_WP = "1"
-TYPE_CMM = "0"
+METHOD_WP = "1"
+METHOD_CMM = "0"
 
 def run(path: str, method: str, out: str=None):
     """
@@ -34,7 +34,7 @@ def run(path: str, method: str, out: str=None):
 
     print(f"running {BIN} with input file {path}, method: {method}")
 
-    return subprocess.run([BIN, path, path+typ+OUT, typ])
+    return subprocess.run([BIN, path, out, method])
 
 def read_mn(path: str) -> pd.DataFrame:
     """
