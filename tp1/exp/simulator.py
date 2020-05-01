@@ -37,7 +37,7 @@ class Game:
     def __str__(self):
         return "1 " + str(self.team1) + " " + str(int(self.goals1)) + " " + str(self.team2) + " " + str(int(self.goals2))
 
-def RunGame(team1,team2, goals_per_game: int):
+def RunGame(team1,team2, goals_per_game: int) -> Game:
     wins_t1 = 0
     wins_t2 = 0
     for goals in range(0,GOALS_PER_GAME):
@@ -51,7 +51,7 @@ def RunGame(team1,team2, goals_per_game: int):
 
     return Game(team1.index,wins_t1,team2.index,wins_t2)
 
-def RoundRobin(teams: List[Team], games_against_each: int, goals_per_game: int):
+def RoundRobin(teams: List[Team], games_against_each: int, goals_per_game: int) -> List[Game]:
     games = []
 
     for team1 in teams:
@@ -62,7 +62,7 @@ def RoundRobin(teams: List[Team], games_against_each: int, goals_per_game: int):
 
     return games
 
-def Clusters(teams: List[Team], clusters: int, goals_per_game: int):
+def Clusters(teams: List[Team], clusters: int, goals_per_game: int) -> List[Game]:
     games = []
     team_cluster = {}
 
@@ -74,7 +74,7 @@ def Clusters(teams: List[Team], clusters: int, goals_per_game: int):
         for team2 in teams:
             #cluster2 = int(team1.index*(TEAMS/CLUSTERS))
             if team1.index != team2.index and team_cluster[team1.index] == team_cluster[team2.index]:
-                for g in range(0,GAMES_AGAINST_EACH):
+                for _ in range(0,GAMES_AGAINST_EACH):
                     games.append(RunGame(team1,team2, goals_per_game))
 
     return games
@@ -117,7 +117,9 @@ def simulate(
         goals_per_game: int = GOALS_PER_GAME,
         clusters: int = CLUSTERS,
         matches_output: str = "../data/sim.dat",
-        team_powers_output: str = "../data/sim_powers.tsv"
+        matches_output_heuristic: str = "../data/sim.heuristic.dat",
+        team_powers_output: str = "../data/sim_powers.tsv",
+        heuristic = None,
     ):
 
     teams = []
@@ -131,6 +133,10 @@ def simulate(
         games = RoundRobin(teams, games_against_each, goals_per_game)
     elif matches == "clusters":
         games = Clusters(teams, clusters, goals_per_game)
+
+
+    if heuristic is not None:
+        SaveMatches(matches_output_heuristic, heuristic(games), len(teams))
 
     SaveMatches(matches_output, games, len(teams))
     SavePowers(team_powers_output, teams)
