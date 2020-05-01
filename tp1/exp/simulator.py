@@ -62,7 +62,7 @@ def RoundRobin(teams: List[Team], games_against_each: int, goals_per_game: int):
 
     return games
 
-def Clusters(teams: List[Team], clusters: int):
+def Clusters(teams: List[Team], clusters: int, goals_per_game: int):
     games = []
     team_cluster = {}
 
@@ -75,7 +75,7 @@ def Clusters(teams: List[Team], clusters: int):
             #cluster2 = int(team1.index*(TEAMS/CLUSTERS))
             if team1.index != team2.index and team_cluster[team1.index] == team_cluster[team2.index]:
                 for g in range(0,GAMES_AGAINST_EACH):
-                    games.append(RunGame(team1,team2))
+                    games.append(RunGame(team1,team2, goals_per_game))
 
     return games
 
@@ -108,48 +108,36 @@ def SavePowers(filename,teams):
         for team in teams:
             print(team, file=f)
 
-def main(args):
-    TEAM = 0
+def simulate(
+        powers: str = "linear",
+        team_count: int = TEAMS,
+        max_power: int = MAX_POWER,
+        matches: str = "roundrobin",
+        games_against_each: int = GAMES_AGAINST_EACH,
+        goals_per_game: int = GOALS_PER_GAME,
+        clusters: int = CLUSTERS,
+        matches_output: str = "../data/sim.dat",
+        team_powers_output: str = "../data/sim_powers.tsv"
+    ):
 
-    if args.matches_output is None:
-        print("Error: No matches output file.")
-        return -1
-
-    if args.team_powers_output is None:
-        print("Error: No team powers output file.")
-        return -1
-
-    global GAMES_AGAINST_EACH
-    global GOALS_PER_GAME
-    global MAX_POWER
-    global TEAMS
-    global CLUSTERS
-    
-    GAMES_AGAINST_EACH = args.team_matches
-    GOALS_PER_GAME = args.goals_per_game
-    MAX_POWER = args.max_power
-    TEAMS = args.teams
-    CLUSTERS = args.clusters
-    
     teams = []
-    
-
-    if args.powers == "linear":
-        teams = LinearPowers()
-    elif args.powers == "exponential": 
-        teams = ExponentialPowers()
-    
-    print(teams)
+    if powers == "linear":
+        teams = LinearPowers(team_count, max_power)
+    elif powers == "exponential": 
+        teams = ExponentialPowers(team_count, max_power)
 
     games = []
-    
-    if args.matches == "roundrobin":
-        games = RoundRobin(teams)
-    elif args.matches == "clusters":
-        games = Clusters(teams)
+    if matches == "roundrobin":
+        games = RoundRobin(teams, games_against_each, goals_per_game)
+    elif matches == "clusters":
+        games = Clusters(teams, clusters, goals_per_game)
 
-    SaveMatches(args.matches_output,games, len(teams))
-    SavePowers(args.team_powers_output,teams)
+    SaveMatches(matches_output, games, len(teams))
+    SavePowers(team_powers_output, teams)
+
+def main(args):
+    # send args as kwargs
+    simulate(**args)
 
 if __name__== "__main__":
     description = 'Simulator'

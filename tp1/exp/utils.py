@@ -32,7 +32,7 @@ def run(path: str, method: str, out: str=None):
 
     if out is None: out = path + method + OUT
 
-    print(f"running {BIN} with input file {path}, method: {method}")
+    #print(f"running {BIN} with input file {path}, method: {method}")
 
     return subprocess.run([BIN, path, out, method])
 
@@ -63,3 +63,37 @@ def read_ranking(path: str) -> pd.DataFrame:
         header=None,
         names=["rating"],
     )
+
+def analyze_data(path: str) -> pd.DataFrame:
+    df = read_mn(path)    
+    
+    teams = {} # {team : { "percent": percent played, "total": total played, "played": set of teams}}
+    
+    for i, row in df.iterrows():
+        date, team1, score1, team2, score2 = row
+        if team1 not in teams: teams[team1] = {"total": 0, "opponents": set()}
+        if team2 not in teams: teams[team2] = {"total": 0, "opponents": set()}
+
+        teams[team1]["total"] += 1
+        teams[team1]["opponents"].add(team2) # wont add if present
+        
+        teams[team2]["total"] += 1
+        teams[team2]["opponents"].add(team1) # wont add if present
+    
+    total_teams = len(teams)
+    
+    max_games_played = -1
+    for vals in teams.values():
+        if vals["total"] > max_games_played:
+            max_games_played = vals["total"]
+
+    data = pd.DataFrame(columns=["team", "share", "total", "participation"])
+    for i, team in enumerate(teams.keys()):
+        # calculate %
+        teams[team]["percent"] = len(teams[team]["opponents"]) / (total_teams - 1)
+        teams[team]["participation"] = teams[team]["total"] / max_games_played
+        
+        # add to pandas dataframe
+        data.loc[i] = [team, teams[team]["percent"], teams[team]["total"], teams[team]["participation"]]
+    
+    return data
