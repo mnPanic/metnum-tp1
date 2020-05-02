@@ -62,7 +62,7 @@ def RoundRobin(
 
     for team1 in teams:
         for team2 in teams:
-            if team1 != team2:
+            if team1.index < team2.index:
                 for g in range(0,games_against_each):
                    games.append(RunGame(team1,team2, goals_per_game, week))
 
@@ -108,7 +108,7 @@ def LinearPowers(team_count: int, max_power: int) -> List[Team]:
     teams_powers = []
 
     for i in range(1, team_count + 1):
-        teams_powers.append(Team(i, i*(max_power/team_count)))
+        teams_powers.append(Team(i, int(1 + i*(max_power/team_count))))
 
     return teams_powers
 
@@ -117,9 +117,9 @@ def ExponentialPowers(team_count: int, max_power: int) -> List[Team]:
     teams_powers = []
 
     for i in range(1, team_count + 1):
-        teams_powers.append(Team(i,int(pow(max_power,i/team_count))))
+        teams_powers.append(Team(i,int(1 + pow(max_power,i/team_count))))
 
-    return teams_powers
+    return teams_powersdef LinearPowers():
 
 def SaveMatches(filename, games, team_amount):
     with open(filename, 'w') as f:
