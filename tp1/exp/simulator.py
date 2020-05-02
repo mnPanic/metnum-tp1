@@ -141,10 +141,10 @@ def simulate(
         goals_per_game: int = GOALS_PER_GAME,
         clusters: int = CLUSTERS,
         matches_output: str = "../data/sim.dat",
-        matches_output_heuristic: str = "../data/sim.heuristic.dat",
         team_powers_output: str = "../data/sim_powers.tsv",
         weeks: int = 1,
         heuristic = None,
+        selected: int = None,
     ):
 
     teams = []
@@ -161,7 +161,7 @@ def simulate(
             Clusters(games, teams, games_against_each, clusters, goals_per_game, week)
 
     if heuristic is not None:
-        SaveMatches(matches_output_heuristic, heuristic(games, teams), len(teams))
+        games = heuristic(games, teams, selected)
 
     SaveMatches(matches_output, games, len(teams))
     SavePowers(team_powers_output, teams)
