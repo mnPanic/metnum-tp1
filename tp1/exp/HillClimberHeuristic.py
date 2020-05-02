@@ -32,13 +32,13 @@ def ScoreSolution(ranking,losses,team_count):
     score += losses/((team_count-1)*1000.0)
     return score
        
-def HillClimber(games,teams):
+def HillClimber(games,teams,selected):
 
     matches_against_each = {}
     wins_against_each = {}
-    best_team = Team(len(teams),0)
+    best_team = Team(len(teams), 0)
 
-    for index in range(0,len(teams)):
+    for index in range(1, len(teams) + 1):
         if index != best_team.index:
             wins_against_each[index] = 0
     
