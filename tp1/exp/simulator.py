@@ -26,18 +26,19 @@ class Team:
             return False
 
 class Game:
-    def __init__(self,t1,g1,t2,g2):
+    def __init__(self,t1,g1,t2,g2,d):
+        self.date = d
         self.team1 = t1
         self.team2 = t2
         self.goals1 = g1
         self.goals2 = g2
     def __repr__(self):  
-        return f"1 {self.team1} {self.goals1} {self.team2} {self.goals2}"
+        return f"{self.date} {self.team1} {self.goals1} {self.team2} {self.goals2}"
 
     def __str__(self):
-        return "1 " + str(self.team1) + " " + str(int(self.goals1)) + " " + str(self.team2) + " " + str(int(self.goals2))
+        return f"{self.date} {self.team1} {self.goals1} {self.team2} {self.goals2}"
 
-def RunGame(team1,team2, goals_per_game: int) -> Game:
+def RunGame(team1,team2, goals_per_game: int, week: int) -> Game:
     wins_t1 = 0
     wins_t2 = 0
     for goals in range(0,GOALS_PER_GAME):
@@ -49,35 +50,40 @@ def RunGame(team1,team2, goals_per_game: int) -> Game:
         else:
             wins_t2 += 1
 
-    return Game(team1.index,wins_t1,team2.index,wins_t2)
+    return Game(team1.index,wins_t1,team2.index,wins_t2,week)
 
-def RoundRobin(teams: List[Team], games_against_each: int, goals_per_game: int) -> List[Game]:
-    games = []
+def RoundRobin(
+        games: List[Game],
+        teams: List[Team],
+        games_against_each: int,
+        goals_per_game: int,
+        week: int
+    ):
 
     for team1 in teams:
         for team2 in teams:
             if team1 != team2:
                 for g in range(0,games_against_each):
-                   games.append(RunGame(team1,team2, goals_per_game))
+                   games.append(RunGame(team1,team2, goals_per_game, week))
 
-    return games
 
-def Clusters(teams: List[Team], clusters: int, goals_per_game: int) -> List[Game]:
-    games = []
+def Clusters(
+        games: List[Game],
+        teams: List[Team],
+        clusters: int,
+        goals_per_game: int,
+        week: int,
+    ):
     team_cluster = {}
 
     for team in teams:
         team_cluster[team.index] = random.randint(0,clusters)
 
     for team1 in teams:
-        #cluster1 = int(team1.index*(TEAMS/CLUSTERS))
         for team2 in teams:
-            #cluster2 = int(team1.index*(TEAMS/CLUSTERS))
             if team1.index != team2.index and team_cluster[team1.index] == team_cluster[team2.index]:
                 for _ in range(0,GAMES_AGAINST_EACH):
-                    games.append(RunGame(team1,team2, goals_per_game))
-
-    return games
+                    games.append(RunGame(team1,team2, goals_per_game, week))
 
 def LinearPowers(team_count: int, max_power: int) -> List[Team]:
 
@@ -119,6 +125,7 @@ def simulate(
         matches_output: str = "../data/sim.dat",
         matches_output_heuristic: str = "../data/sim.heuristic.dat",
         team_powers_output: str = "../data/sim_powers.tsv",
+        weeks: int = 1,
         heuristic = None,
     ):
 
@@ -129,11 +136,11 @@ def simulate(
         teams = ExponentialPowers(team_count, max_power)
 
     games = []
-    if matches == "roundrobin":
-        games = RoundRobin(teams, games_against_each, goals_per_game)
-    elif matches == "clusters":
-        games = Clusters(teams, clusters, goals_per_game)
-
+    for week in range(1, weeks):
+        if matches == "roundrobin":
+            RoundRobin(games, teams, games_against_each, goals_per_game, week)
+        elif matches == "clusters":
+            Clusters(games, teams, clusters, goals_per_game, week)
 
     if heuristic is not None:
         SaveMatches(matches_output_heuristic, heuristic(games), len(teams))
