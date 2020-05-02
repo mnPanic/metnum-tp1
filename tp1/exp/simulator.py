@@ -142,10 +142,14 @@ def simulate(
         clusters: int = CLUSTERS,
         matches_output: str = "../data/sim.dat",
         team_powers_output: str = "../data/sim_powers.tsv",
+        seed: int = None,
         weeks: int = 1,
         heuristic = None,
         selected: int = None,
     ):
+
+    if seed is not None:
+        random.seed(seed)
 
     teams = []
     if powers == "linear":

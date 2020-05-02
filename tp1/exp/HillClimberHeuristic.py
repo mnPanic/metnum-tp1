@@ -36,7 +36,7 @@ def HillClimber(games,teams,selected):
 
     matches_against_each = {}
     wins_against_each = {}
-    best_team = Team(len(teams), 0)
+    best_team = Team(selected, 0)
 
     for index in range(1, len(teams) + 1):
         if index != best_team.index:
