@@ -41,7 +41,7 @@ class Game:
 def RunGame(team1,team2, goals_per_game: int, week: int) -> Game:
     wins_t1 = 0
     wins_t2 = 0
-    for goals in range(0,GOALS_PER_GAME):
+    for goals in range(0,goals_per_game):
         goal_chance = random.randint(1,team1.power+team2.power)
 
         # If T1 wins...
@@ -70,19 +70,37 @@ def RoundRobin(
 def Clusters(
         games: List[Game],
         teams: List[Team],
+        games_against_each: int,
         clusters: int,
         goals_per_game: int,
         week: int,
     ):
     team_cluster = {}
 
-    for team in teams:
-        team_cluster[team.index] = random.randint(0,clusters)
+    teams_copy = teams.copy()
+
+    random.shuffle(teams_copy)
+    clusters_index = 0
+
+    print(teams_copy)
+    while len(teams_copy) > 0 and clusters_index < clusters:
+        if len(teams_copy) <= 3:
+            team_cluster[teams_copy[0].index] = clusters_index
+            teams_copy.remove(teams_copy[0])
+        else:
+            team_cluster[teams_copy[0].index] = clusters_index
+            team_cluster[teams_copy[1].index] = clusters_index
+            teams_copy.remove(teams_copy[1])
+            teams_copy.remove(teams_copy[0])
+            clusters_index+=1
+
+    for team in teams_copy:
+        team_cluster[team.index] = random.randint(0,clusters-1)
 
     for team1 in teams:
         for team2 in teams:
             if team1.index != team2.index and team_cluster[team1.index] == team_cluster[team2.index]:
-                for _ in range(0,GAMES_AGAINST_EACH):
+                for _ in range(0,games_against_each):
                     games.append(RunGame(team1,team2, goals_per_game, week))
 
 def LinearPowers(team_count: int, max_power: int) -> List[Team]:
@@ -140,7 +158,7 @@ def simulate(
         if matches == "roundrobin":
             RoundRobin(games, teams, games_against_each, goals_per_game, week)
         elif matches == "clusters":
-            Clusters(games, teams, clusters, goals_per_game, week)
+            Clusters(games, teams, games_against_each, clusters, goals_per_game, week)
 
     if heuristic is not None:
         SaveMatches(matches_output_heuristic, heuristic(games, teams), len(teams))
