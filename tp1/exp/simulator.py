@@ -119,7 +119,7 @@ def ExponentialPowers(team_count: int, max_power: int) -> List[Team]:
     for i in range(1, team_count + 1):
         teams_powers.append(Team(i,int(1 + pow(max_power,i/team_count))))
 
-    return teams_powersdef LinearPowers():
+    return teams_powers
 
 def SaveMatches(filename, games, team_amount):
     with open(filename, 'w') as f:
