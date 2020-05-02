@@ -136,14 +136,14 @@ def simulate(
         teams = ExponentialPowers(team_count, max_power)
 
     games = []
-    for week in range(1, weeks):
+    for week in range(1, weeks + 1):
         if matches == "roundrobin":
             RoundRobin(games, teams, games_against_each, goals_per_game, week)
         elif matches == "clusters":
             Clusters(games, teams, clusters, goals_per_game, week)
 
     if heuristic is not None:
-        SaveMatches(matches_output_heuristic, heuristic(games), len(teams))
+        SaveMatches(matches_output_heuristic, heuristic(games, teams), len(teams))
 
     SaveMatches(matches_output, games, len(teams))
     SavePowers(team_powers_output, teams)
