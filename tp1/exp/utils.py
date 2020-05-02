@@ -45,7 +45,7 @@ def read_mn(path: str) -> pd.DataFrame:
     return pd.read_csv(
         path,
         sep=' ',
-        skiprows=2, # la primera row contiene cant teams y cant partidos
+        skiprows=1, # la primera row contiene cant teams y cant partidos
         # Headers custom porque el formato de la catedra no lo tiene
         header=None,
         names=["date", "team1", "score1", "team2", "score2"],
