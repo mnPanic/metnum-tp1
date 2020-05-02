@@ -73,8 +73,7 @@ def analyze_data(path: str) -> pd.DataFrame:
         date, team1, score1, team2, score2 = row
         if team1 not in teams: teams[team1] = {"total": 0, "wins": 0, "opponents": set()}
         if team2 not in teams: teams[team2] = {"total": 0, "wins": 0, "opponents": set()}
-
-
+        
         teams[team1]["total"] += 1
         teams[team1]["wins"] += 1 if score1 > score2 else 0
         teams[team1]["opponents"].add(team2) # wont add if present
