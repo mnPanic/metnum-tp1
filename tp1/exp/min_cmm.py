@@ -1,4 +1,6 @@
 import simulator
+import math
+
 import numpy as np
 from typing import List
 
@@ -27,14 +29,25 @@ def games2cmm(games: List[simulator.Game], teams):
             
     return np.linalg.solve(cmm,b)
 
+def count_better_than(ratings: List[float], player: int) -> int:
+    res = 0
+    for i in range(len(ratings)):
+        if i == player: continue
+        pr = ratings[player]
+        r = ratings[i]
+        # r >= pr
+        if (r > pr or math.isclose(r, pr)): res += 1
+    
+    return res
+
 def rank_and_worst(player, games, teams) -> (int, int):
     ratings = games2cmm(games, teams)
-    rank = sum(ratings > ratings[player-1])
+    rank = count_better_than(ratings, player-1)
     worst_rating = ratings[0]
     worst_player_index = 0
     
     for i in range(len(ratings)):
-        if ratings[i] < worst_rating:
+        if ratings[i] < worst_rating and i != player - 1:
             worst_player_index = i
     
     return rank,worst_player_index +1
@@ -56,15 +69,15 @@ def lose_against(player1, player2, games):
     return aux
 
 def min_cmm(games: List[simulator.Game], teams, selected) -> List[simulator.Game]:
-    old_games = games.copy()
-    current_games = games.copy()
-    for i in range(len(current_games)): #Cambiar
-        old_games = current_games.copy()
-        rank,worst_player = rank_and_worst(selected, current_games, len(teams))
-        
-        current_games = lose_against(selected, worst_player, old_games)
-        
-        new_ratings = games2cmm(current_games, len(teams))
-        new_rank = sum(new_ratings > new_ratings[selected-1])
-        if (new_rank > rank): break
+    old_games = copy.deepcopy(games)
+    current_games = copy.deepcopy(games)
+
+    for _ in range(len(games)):
+        old_games = copy.deepcopy(current_games)
+        rank, worst_player = rank_and_worst(selected, old_games, len(teams))
+        current_games = lose_against(selected, worst_player, current_games)
+        new_rank, _ = rank_and_worst(selected, current_games, len(teams))
+        if (new_rank > rank):
+            break
+
     return old_games

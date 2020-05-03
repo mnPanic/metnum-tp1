@@ -2,6 +2,18 @@ import random
 import argparse
 import numpy as np
 from simulator import *
+import math
+
+def count_better_than(ratings: List[float], player: int) -> int:
+    res = 0
+    for i in range(len(ratings)):
+        if i == player: continue
+        pr = ratings[player]
+        r = ratings[i]
+        # r >= pr
+        if (r > pr or math.isclose(r, pr)): res += 1
+    
+    return res
 
 def GenerateCMM(games,teams_count):
     cmm = np.zeros(shape=(teams_count,teams_count))
@@ -70,7 +82,7 @@ def HillClimber(games,teams,selected):
     #print(b)
     #calculate actual ranking
     temp_x = np.linalg.solve(cmm,b)
-    best_ranking = sum(temp_x > temp_x[best_team.index-1])
+    best_ranking = count_better_than(temp_x, best_team.index-1)
     best_losses = sum(list(matches_against_each.values())) - sum(list(wins_against_each.values()))
     best_score = ScoreSolution(best_ranking,best_losses,len(teams))
     best_decisions = wins_against_each
@@ -101,7 +113,7 @@ def HillClimber(games,teams,selected):
         #solve new system
         x = np.linalg.solve(cmm,b)
         #calculate new ranking
-        ranking = sum(x > x[best_team.index-1])
+        ranking = count_better_than(x, best_team.index-1)
 
         score = ScoreSolution(ranking,losses,len(teams))
 
