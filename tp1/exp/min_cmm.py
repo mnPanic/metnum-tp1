@@ -32,7 +32,7 @@ def games2cmm(games: List[simulator.Game], teams):
 def count_better_than(ratings: List[float], player: int) -> int:
     res = 0
     for i in range(len(ratings)):
-        if i == player: continue
+        if (i == player): continue
         pr = ratings[player]
         r = ratings[i]
         # r >= pr
@@ -40,17 +40,27 @@ def count_better_than(ratings: List[float], player: int) -> int:
     
     return res
 
-def rank_and_worst(player, games, teams) -> (int, int):
-    ratings = games2cmm(games, teams)
+def has_draw(player, games, team_count) -> bool:
+    ratings = games2cmm(games, team_count)
+    for i in range(len(ratings)):
+        if (i == player): continue
+        pr = ratings[player]
+        r = ratings[i]
+        if (math.isclose(r, pr)): return True
+
+    return False
+
+def rank_and_worst(player, games, team_count) -> (int, int):
+    ratings = games2cmm(games, team_count)
     rank = count_better_than(ratings, player-1)
     worst_rating = ratings[0]
     worst_player_index = 0
-    
+
     for i in range(len(ratings)):
         if ratings[i] < worst_rating and i != player - 1:
             worst_player_index = i
     
-    return rank,worst_player_index +1
+    return rank, worst_player_index + 1
 
 def lose_against(player1, player2, games):
     aux = copy.deepcopy(games)
@@ -69,15 +79,16 @@ def lose_against(player1, player2, games):
     return aux
 
 def min_cmm(games: List[simulator.Game], teams, selected) -> List[simulator.Game]:
+    if(has_draw(selected, games, len(teams))): return games
+
     old_games = copy.deepcopy(games)
     current_games = copy.deepcopy(games)
 
     for _ in range(len(games)):
         old_games = copy.deepcopy(current_games)
-        rank, worst_player = rank_and_worst(selected, old_games, len(teams))
+        rank, worst_player, = rank_and_worst(selected, old_games, len(teams))
         current_games = lose_against(selected, worst_player, current_games)
-        new_rank, _ = rank_and_worst(selected, current_games, len(teams))
-        if (new_rank > rank):
-            break
+        new_rank, _, = rank_and_worst(selected, current_games, len(teams))
+        if (new_rank > rank): break
 
     return old_games

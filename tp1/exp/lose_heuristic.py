@@ -38,16 +38,15 @@ def win_one(games: List[sim.Game], teams: List[sim.Team], selected: int) -> List
             # no aparece en este juego
             continue
 
+        games[i] = lose(game, selected)
         other_skill = find(teams, other_idx).power
         if(other_skill > max_skill):
             max_game = i
             max_skill = other_skill
             max_idx = other_idx
 
-        games[i] = lose(game, selected)
-
     # gano 1
-    games[i] = lose(games[max_game], max_idx)
+    games[max_game] = lose(games[max_game], max_idx)
     return games
 
 def lose_worse(games: List[sim.Game], teams: List[sim.Team], selected: int) -> List[sim.Game]:
