@@ -64,6 +64,7 @@ def rank_and_worst(player, games, team_count) -> (int, int):
 
 def lose_against(player1, player2, games):
     aux = copy.deepcopy(games)
+    lost = False
     
     for i in range(len(aux)):
         if ((aux[i].team1 == player1 and
@@ -74,21 +75,42 @@ def lose_against(player1, player2, games):
             aux[i].goals2 > aux[i].goals1)):
             
             aux[i].goals1, aux[i].goals2 = aux[i].goals2, aux[i].goals1
+            lost = True
             break
             
-    return aux
+    return aux, lost
 
-def min_cmm(games: List[simulator.Game], teams, selected) -> List[simulator.Game]:
+def min_cmm(games, teams, selected):
+    return min_cmm_tol(games, teams, selected, 0)
+
+def min_cmm_tol_1(games, teams, selected):
+    return min_cmm_tol(games, teams, selected, 1)
+
+def min_cmm_tol_3(games, teams, selected):
+    return min_cmm_tol(games, teams, selected, 3)
+
+def min_cmm_tol(
+        games: List[simulator.Game],
+        teams,
+        selected,
+        tolerance: int,
+    ) -> List[simulator.Game]:
     if(has_draw(selected, games, len(teams))): return games
 
     old_games = copy.deepcopy(games)
     current_games = copy.deepcopy(games)
 
-    for _ in range(len(games)):
+    for i in range(len(games)):
         old_games = copy.deepcopy(current_games)
-        rank, worst_player, = rank_and_worst(selected, old_games, len(teams))
-        current_games = lose_against(selected, worst_player, current_games)
-        new_rank, _, = rank_and_worst(selected, current_games, len(teams))
-        if (new_rank > rank): break
+        rank, worst_player = rank_and_worst(selected, old_games, len(teams))
+        
+        current_games, lost = lose_against(selected, worst_player, current_games)
+        if not lost:
+            # if we didn't lose, then there isn't any more games to lose
+            # to the worst player. Stop trying
+            break
+
+        new_rank, _ = rank_and_worst(selected, current_games, len(teams))
+        if (new_rank - tolerance > rank): break
 
     return old_games
