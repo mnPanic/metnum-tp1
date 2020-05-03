@@ -8,3 +8,9 @@ tp
 
 # python
 __pycache__
+
+# notebook
+.ipynb_checkpoints
+
+# ide
+.vscode
