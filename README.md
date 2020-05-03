@@ -92,3 +92,4 @@ se encuentran en el directorio [`exp/`](tp1/exp)
   que fue utilizada para los resultados de forma tal que sean reproducibles.
 - `TODO`: Experimentos de perdida de precision
 - `min_cmm.ipynb`: TODO: borrar?
+- `justo.ipynb`: Experimentos de si CMM es justo
