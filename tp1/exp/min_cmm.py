@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 from typing import List
+from operator import itemgetter
 
 import copy
 
@@ -50,17 +51,15 @@ def has_draw(player, games, team_count) -> bool:
 
     return False
 
-def rank_and_worst(player, games, team_count) -> (int, int):
+def rank_and_worst(player, games, team_count, worst) -> (int, int):
     ratings = games2cmm(games, team_count)
-    rank = count_better_than(ratings, player-1)
-    worst_rating = ratings[0]
-    worst_player_index = 0
+    # sort ratings into dict
+    dratings = [{"idx": i+1, "rating": r} for i, r in enumerate(ratings)]
+    dratings = sorted(dratings, key=itemgetter("rating"))
 
-    for i in range(len(ratings)):
-        if ratings[i] < worst_rating and i != player - 1:
-            worst_player_index = i
-    
-    return rank, worst_player_index + 1
+    rank = count_better_than(ratings, player-1)
+
+    return rank, dratings[worst]["idx"]
 
 def lose_against(player1, player2, games):
     aux = copy.deepcopy(games)
@@ -99,18 +98,24 @@ def min_cmm_tol(
 
     old_games = copy.deepcopy(games)
     current_games = copy.deepcopy(games)
+    # el iesimo peor
+    worst_idx = 0
+
+    initial_rank, _ = rank_and_worst(selected, old_games, len(teams), worst_idx)
 
     for i in range(len(games)):
         old_games = copy.deepcopy(current_games)
-        rank, worst_player = rank_and_worst(selected, old_games, len(teams))
+        _, worst_player = rank_and_worst(selected, old_games, len(teams), worst_idx)
         
         current_games, lost = lose_against(selected, worst_player, current_games)
         if not lost:
             # if we didn't lose, then there isn't any more games to lose
-            # to the worst player. Stop trying
-            break
+            # to the worst player.
+            worst_idx += 1
+            # No hay mas jugadores contra los cuales perder
+            if worst_idx == len(teams): break
 
-        new_rank, _ = rank_and_worst(selected, current_games, len(teams))
-        if (new_rank - tolerance > rank): break
+        rank, _ = rank_and_worst(selected, current_games, len(teams), worst_idx)
+        if (rank - tolerance > initial_rank): break
 
     return old_games
