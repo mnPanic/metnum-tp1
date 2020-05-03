@@ -108,7 +108,7 @@ def LinearPowers(team_count: int, max_power: int) -> List[Team]:
     teams_powers = []
 
     for i in range(1, team_count + 1):
-        teams_powers.append(Team(i, int(1 + i*(max_power/team_count))))
+        teams_powers.append(Team(i, int(i*(max_power/team_count))))
 
     return teams_powers
 
