@@ -28,7 +28,7 @@ substitution) y WP, todo en un *single file*, `tp1.cpp`.
 Para compilarlo, basta con:
 
 ```bash
-g++ tp1.cpp -p tp
+g++ tp1.cpp -o tp
 ```
 
 Luego se puede utilizar el binario `tp` tal como se especifica en el enunciado,
