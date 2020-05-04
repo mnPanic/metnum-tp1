@@ -9,7 +9,7 @@ $ tree -d
 .
 └── tp1
     ├── data                # Datos para los experimentos
-    ├── docs                # Documentación del TP provista por la cátedra
+    ├── docs                # Docs provistas por la cátedra y el informe
     ├── exp                 # Experimentos
     │   └── img
     └── src                 # Implementación
