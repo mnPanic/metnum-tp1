@@ -5,8 +5,8 @@ TP1 de Métodos Numéricos
 ## Estructura del TP
 
 ```bash
-$ tree -C
-
+$ tree -d
+.
 └── tp1
     ├── data                # Datos para los experimentos
     ├── docs                # Documentación del TP provista por la cátedra
@@ -14,7 +14,6 @@ $ tree -C
     │   └── img
     └── src                 # Implementación
         ├── scripts         # Scripts provistos por la catedra
-        ├── solvers         # TODO: Borrar?
         ├── tests           # Tests provistos por la catedra
         └── tools           # Herramientas para manipulacion de datos y simulador
 ```
@@ -90,6 +89,5 @@ se encuentran en el directorio [`exp/`](tp1/exp)
   de victorias. En este se utiliza el [*simulador*](tp1/exp/simulator.py) para
   probar cada una. Como naturalmente es random, se deja comentada la seed
   que fue utilizada para los resultados de forma tal que sean reproducibles.
-- `TODO`: Experimentos de perdida de precision
-- `min_cmm.ipynb`: TODO: borrar?
+- `errores_precision.ipynb`: Experimentos de perdida de precision
 - `justo.ipynb`: Experimentos de si CMM es justo
